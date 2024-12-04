@@ -1,11 +1,14 @@
 import { Text, View } from "react-native";
-import { useTheme } from "react-native-paper";
+import { Appbar, useTheme } from "react-native-paper";
 
 export default function Index() {
   const theme = useTheme();
   return (
     <>
-      {/* AppBarを追加する */}
+      <Appbar.Header>
+        <Appbar.Content title="Secure Board" />
+        <Appbar.Action icon="note-text-outline" onPress={() => {}} />
+      </Appbar.Header>
       <View
         style={{
           flex: 1,

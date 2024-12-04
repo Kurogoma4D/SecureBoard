@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "secure_board",
+    "name": "Secure Board",
     "slug": "secure_board",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,9 +14,9 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#2e2e2e"
       },
-      "package": "com.anonymous.secure_board"
+      "package": "dev.krgm4d.secure_board"
     },
     "web": {
       "bundler": "metro",
@@ -31,7 +31,7 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#2e2e2e"
         }
       ]
     ],

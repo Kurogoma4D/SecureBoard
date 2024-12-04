@@ -86,9 +86,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.secure_board'
+    namespace 'dev.krgm4d.secure_board'
     defaultConfig {
-        applicationId 'com.anonymous.secure_board'
+        applicationId 'dev.krgm4d.secure_board'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

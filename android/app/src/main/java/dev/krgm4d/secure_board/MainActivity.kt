@@ -1,4 +1,4 @@
-package com.anonymous.secure_board
+package dev.krgm4d.secure_board
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

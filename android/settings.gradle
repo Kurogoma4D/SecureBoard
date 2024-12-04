@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'secure_board'
+rootProject.name = 'Secure Board'
 
 dependencyResolutionManagement {
   versionCatalogs {

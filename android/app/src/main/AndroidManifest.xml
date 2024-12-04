@@ -29,6 +29,7 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="myapp"/>
         <data android:scheme="com.anonymous.secure_board"/>
+        <data android:scheme="dev.krgm4d.secure_board"/>
       </intent-filter>
     </activity>
   </application>

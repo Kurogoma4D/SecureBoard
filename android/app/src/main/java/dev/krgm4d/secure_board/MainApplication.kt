@@ -1,4 +1,4 @@
-package com.anonymous.secure_board
+package dev.krgm4d.secure_board
 
 import android.app.Application
 import android.content.res.Configuration
