@@ -27,6 +27,7 @@ export default function Index() {
       key={item.path}
       style={{
         flex: 1,
+        aspectRatio: 1,
         backgroundColor: theme.colors.surfaceVariant,
         elevation: 0,
         borderColor: theme.colors.onSurfaceVariant,
@@ -47,9 +48,13 @@ export default function Index() {
         <Appbar.Action icon="note-text-outline" onPress={() => {}} />
       </Appbar.Header>
       <View style={styles(theme).container}>
-        <View style={styles(theme).list}>
-          {savedItems.map((item) => renderItem(item))}
-        </View>
+        <FlatList
+          data={savedItems}
+          renderItem={({ item }) => renderItem(item)}
+          keyExtractor={(item) => item.path}
+          numColumns={2}
+          columnWrapperStyle={styles(theme).row}
+        />
       </View>
     </>
   );
@@ -69,7 +74,7 @@ const styles = (theme: MD3Theme) =>
       flexDirection: "row",
     },
     row: {
-      justifyContent: "flex-start",
+      justifyContent: "space-between",
     },
     text: {
       color: theme.colors.onSurface,
