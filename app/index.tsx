@@ -1,5 +1,6 @@
+import { MaterialIcons } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
-import { FlatList, StyleSheet, Text, View, ScrollView } from "react-native";
+import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import {
   Appbar,
   Card,
@@ -20,9 +21,9 @@ export default function Index() {
     { path: "example2" },
     { path: "example3" },
     { path: "example4" },
-    { path: "example5" },
-    { path: "example6" },
-    { path: "example7" },
+    { path: "example4" },
+    { path: "example4" },
+    { path: "example4" },
   ]);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -32,10 +33,12 @@ export default function Index() {
     [savedItems]
   );
 
+  const styles = useMemo(() => themedStyles(theme), [theme]);
+
   const renderItem = (item: SavedItem) => (
     <Card
       key={item.path}
-      style={{ ...styles(theme).card, opacity: item.path !== "" ? 1 : 0 }}
+      style={{ ...styles.card, opacity: item.path !== "" ? 1 : 0 }}
     >
       {item.path !== "" && (
         <Card.Content>
@@ -57,33 +60,37 @@ export default function Index() {
         <Appbar.Content title="Secure Board" />
         <Appbar.Action icon="note-text-outline" onPress={() => {}} />
       </Appbar.Header>
-      <FlatList
-        style={styles(theme).container}
-        data={displayItems}
-        renderItem={({ item }) => renderItem(item)}
-        keyExtractor={(item) => item.path}
-        numColumns={2}
-        columnWrapperStyle={styles(theme).row}
+      <ScrollView
+        style={styles.container}
         onScroll={(e) =>
           e.nativeEvent.contentOffset.y > 0
             ? setIsScrolled(true)
             : setIsScrolled(false)
         }
-      />
+      >
+        <FlatList
+          data={displayItems}
+          renderItem={({ item }) => renderItem(item)}
+          keyExtractor={(item) => item.path}
+          numColumns={2}
+          columnWrapperStyle={styles.row}
+          scrollEnabled={false}
+        />
+        <Card style={styles.addCard}>
+          <Card.Content style={styles.addIcon}>
+            <MaterialIcons name="add" size={24} color="white" />
+          </Card.Content>
+        </Card>
+      </ScrollView>
     </>
   );
 }
 
-const styles = (theme: MD3Theme) =>
+const themedStyles = (theme: MD3Theme) =>
   StyleSheet.create({
     container: {
       padding: 8,
       backgroundColor: theme.colors.surface,
-    },
-    list: {
-      display: "flex",
-      alignContent: "stretch",
-      flexDirection: "row",
     },
     row: {
       justifyContent: "space-between",
@@ -96,5 +103,19 @@ const styles = (theme: MD3Theme) =>
       borderColor: theme.colors.onSurfaceVariant,
       borderWidth: 1,
       margin: 8,
+    },
+    addCard: {
+      flex: 1,
+      flexDirection: "row",
+      paddingVertical: 8,
+      backgroundColor: theme.colors.surface,
+      elevation: 0,
+      borderColor: theme.colors.onSurfaceVariant,
+      borderWidth: 1,
+      margin: 8,
+      marginBottom: 40,
+    },
+    addIcon: {
+      justifyContent: "center",
     },
   });
