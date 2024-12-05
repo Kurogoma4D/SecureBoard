@@ -54,9 +54,14 @@ export default function Index() {
       style={{ ...styles.card, opacity: item.path !== "" ? 1 : 0 }}
     >
       {item.path !== "" && (
-        <Card.Content>
-          <Image source={{ uri: item.path }} />
-        </Card.Content>
+        <Image
+          source={{ uri: item.path }}
+          style={{
+            width: "100%",
+            height: "100%",
+            borderRadius: 10,
+          }}
+        />
       )}
     </Card>
   );
