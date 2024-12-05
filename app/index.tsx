@@ -1,6 +1,13 @@
 import { MaterialIcons } from "@expo/vector-icons";
 import { useEffect, useMemo, useState } from "react";
-import { FlatList, Image, ScrollView, StyleSheet } from "react-native";
+import {
+  FlatList,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import {
   Appbar,
   Card,
@@ -12,6 +19,7 @@ import {
 import uuid from "react-native-uuid";
 import * as FileSystem from "expo-file-system";
 import * as ImagePicker from "expo-image-picker";
+import * as LocalAuthentication from "expo-local-authentication";
 import { MMKV } from "react-native-mmkv";
 
 type SavedItem = {
@@ -28,18 +36,22 @@ export default function Index() {
   const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [snackBarMessage, setSnackBarMessage] = useState("");
-
-  const displayItems = useMemo(
-    () =>
-      savedItems.length % 2 === 0 ? savedItems : [...savedItems, { path: "" }],
-    [savedItems]
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const styles = useMemo(() => themedStyles(theme), [theme]);
 
   useEffect(() => {
     (async () => {
       await initializeFolder();
+
+      const hasHardware = await LocalAuthentication.hasHardwareAsync();
+      if (!hasHardware) {
+        return;
+      }
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Authenticate to access Secure Board",
+      });
+      setIsAuthenticated(result.success);
 
       const storedItems = storage.getString(STORAGE_KEY);
       if (storedItems) {
@@ -108,35 +120,43 @@ export default function Index() {
         <Appbar.Content title="Secure Board" />
         <Appbar.Action icon="note-text-outline" onPress={() => {}} />
       </Appbar.Header>
-      <ScrollView
-        style={styles.container}
-        onScroll={(e) =>
-          e.nativeEvent.contentOffset.y > 0
-            ? setIsScrolled(true)
-            : setIsScrolled(false)
-        }
-      >
-        <FlatList
-          data={displayItems}
-          renderItem={({ item }) => renderItem(item)}
-          keyExtractor={(item) => item.path}
-          numColumns={2}
-          columnWrapperStyle={styles.row}
-          scrollEnabled={false}
-        />
-        <Card style={styles.addCard}>
-          <TouchableRipple onPress={pickAndSave}>
-            <Card.Content style={styles.addCardContent}>
-              <MaterialIcons
-                name="add"
-                size={24}
-                color="white"
-                style={styles.addIcon}
-              />
-            </Card.Content>
-          </TouchableRipple>
-        </Card>
-      </ScrollView>
+      {isAuthenticated ? (
+        <ScrollView
+          style={styles.container}
+          onScroll={(e) =>
+            e.nativeEvent.contentOffset.y > 0
+              ? setIsScrolled(true)
+              : setIsScrolled(false)
+          }
+        >
+          <FlatList
+            data={savedItems}
+            renderItem={({ item }) => renderItem(item)}
+            keyExtractor={(item) => item.path}
+            numColumns={1}
+            scrollEnabled={false}
+          />
+          <Card style={styles.addCard}>
+            <TouchableRipple onPress={pickAndSave}>
+              <Card.Content style={styles.addCardContent}>
+                <MaterialIcons
+                  name="add"
+                  size={24}
+                  color="white"
+                  style={styles.addIcon}
+                />
+              </Card.Content>
+            </TouchableRipple>
+          </Card>
+        </ScrollView>
+      ) : (
+        <View style={styles.notAuthenticatedContainer}>
+          <Text style={styles.label}>
+            Require authentication. Please restart.
+          </Text>
+        </View>
+      )}
+
       <Snackbar
         visible={snackBarMessage !== ""}
         onDismiss={() => setSnackBarMessage("")}
@@ -165,6 +185,15 @@ const themedStyles = (theme: MD3Theme) =>
   StyleSheet.create({
     container: {
       padding: 8,
+      backgroundColor: theme.colors.surface,
+    },
+    label: {
+      color: theme.colors.onSurface,
+    },
+    notAuthenticatedContainer: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
       backgroundColor: theme.colors.surface,
     },
     row: {
