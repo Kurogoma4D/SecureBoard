@@ -1,32 +1,33 @@
 import { MaterialIcons } from "@expo/vector-icons";
-import { useMemo, useState } from "react";
-import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { FlatList, Image, ScrollView, StyleSheet } from "react-native";
 import {
   Appbar,
   Card,
   MD3Theme,
-  ThemeBase,
+  Snackbar,
   TouchableRipple,
   useTheme,
 } from "react-native-paper";
+import uuid from "react-native-uuid";
+import * as FileSystem from "expo-file-system";
+import * as ImagePicker from "expo-image-picker";
+import { MMKV } from "react-native-mmkv";
 
 type SavedItem = {
   path: string;
 };
 
+const storage = new MMKV();
+
+const STORAGE_KEY = "savedItems";
+
 export default function Index() {
   const theme = useTheme();
 
-  const [savedItems, setSavedItems] = useState<SavedItem[]>([
-    { path: "example" },
-    { path: "example2" },
-    { path: "example3" },
-    { path: "example4" },
-    { path: "example4" },
-    { path: "example4" },
-    { path: "example4" },
-  ]);
+  const [savedItems, setSavedItems] = useState<SavedItem[]>([]);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [snackBarMessage, setSnackBarMessage] = useState("");
 
   const displayItems = useMemo(
     () =>
@@ -36,6 +37,17 @@ export default function Index() {
 
   const styles = useMemo(() => themedStyles(theme), [theme]);
 
+  useEffect(() => {
+    (async () => {
+      await initializeFolder();
+
+      const storedItems = storage.getString(STORAGE_KEY);
+      if (storedItems) {
+        setSavedItems(JSON.parse(storedItems));
+      }
+    })();
+  }, []);
+
   const renderItem = (item: SavedItem) => (
     <Card
       key={item.path}
@@ -43,11 +55,41 @@ export default function Index() {
     >
       {item.path !== "" && (
         <Card.Content>
-          <Text>{item.path}</Text>
+          <Image source={{ uri: item.path }} />
         </Card.Content>
       )}
     </Card>
   );
+
+  const pickAndSave = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Permission to access media library is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      allowsEditing: false,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets.length > 0) {
+      setSnackBarMessage("Image saving...");
+      const baseUri = result.assets[0].uri;
+      const extension = baseUri.split(".").pop();
+
+      const key = uuid.v4();
+      const newUri = `${PHOTOS_FOLDER}/${key}.${extension}`;
+      await FileSystem.copyAsync({ from: baseUri, to: newUri });
+
+      const newItem = { path: newUri };
+      const items = [...savedItems, newItem];
+      setSavedItems((_) => items);
+      setSnackBarMessage("Image saved!");
+      storage.set(STORAGE_KEY, JSON.stringify(items));
+    }
+  };
 
   return (
     <>
@@ -78,7 +120,7 @@ export default function Index() {
           scrollEnabled={false}
         />
         <Card style={styles.addCard}>
-          <TouchableRipple onPress={() => {}}>
+          <TouchableRipple onPress={pickAndSave}>
             <Card.Content style={styles.addCardContent}>
               <MaterialIcons
                 name="add"
@@ -90,8 +132,28 @@ export default function Index() {
           </TouchableRipple>
         </Card>
       </ScrollView>
+      <Snackbar
+        visible={snackBarMessage !== ""}
+        onDismiss={() => setSnackBarMessage("")}
+      >
+        {snackBarMessage}
+      </Snackbar>
     </>
   );
+}
+
+export const PHOTOS_FOLDER = `${FileSystem.documentDirectory || ""}photos`;
+
+async function initializeFolder() {
+  const info = await FileSystem.getInfoAsync(PHOTOS_FOLDER);
+
+  if (info.exists) {
+    return Promise.resolve();
+  }
+
+  return await FileSystem.makeDirectoryAsync(PHOTOS_FOLDER, {
+    intermediates: true,
+  });
 }
 
 const themedStyles = (theme: MD3Theme) =>
