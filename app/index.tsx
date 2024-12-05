@@ -6,6 +6,7 @@ import {
   Card,
   MD3Theme,
   ThemeBase,
+  TouchableRipple,
   useTheme,
 } from "react-native-paper";
 
@@ -77,9 +78,16 @@ export default function Index() {
           scrollEnabled={false}
         />
         <Card style={styles.addCard}>
-          <Card.Content style={styles.addIcon}>
-            <MaterialIcons name="add" size={24} color="white" />
-          </Card.Content>
+          <TouchableRipple onPress={() => {}}>
+            <Card.Content style={styles.addCardContent}>
+              <MaterialIcons
+                name="add"
+                size={24}
+                color="white"
+                style={styles.addIcon}
+              />
+            </Card.Content>
+          </TouchableRipple>
         </Card>
       </ScrollView>
     </>
@@ -107,7 +115,6 @@ const themedStyles = (theme: MD3Theme) =>
     addCard: {
       flex: 1,
       flexDirection: "row",
-      paddingVertical: 8,
       backgroundColor: theme.colors.surface,
       elevation: 0,
       borderColor: theme.colors.onSurfaceVariant,
@@ -115,7 +122,12 @@ const themedStyles = (theme: MD3Theme) =>
       margin: 8,
       marginBottom: 40,
     },
+    addCardContent: {
+      paddingVertical: 16,
+      minWidth: "100%",
+      alignItems: "center",
+    },
     addIcon: {
-      justifyContent: "center",
+      aspectRatio: 1,
     },
   });
