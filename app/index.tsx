@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FlatList, StyleSheet, Text, View, ScrollView } from "react-native";
 import {
   Appbar,
@@ -15,7 +15,6 @@ type SavedItem = {
 export default function Index() {
   const theme = useTheme();
 
-  const [savedLength, setSavedLength] = useState(7);
   const [savedItems, setSavedItems] = useState<SavedItem[]>([
     { path: "example" },
     { path: "example2" },
@@ -27,11 +26,22 @@ export default function Index() {
   ]);
   const [isScrolled, setIsScrolled] = useState(false);
 
+  const displayItems = useMemo(
+    () =>
+      savedItems.length % 2 === 0 ? savedItems : [...savedItems, { path: "" }],
+    [savedItems]
+  );
+
   const renderItem = (item: SavedItem) => (
-    <Card key={item.path} style={styles(theme).card}>
-      <Card.Content>
-        <Text>{item.path}</Text>
-      </Card.Content>
+    <Card
+      key={item.path}
+      style={{ ...styles(theme).card, opacity: item.path !== "" ? 1 : 0 }}
+    >
+      {item.path !== "" && (
+        <Card.Content>
+          <Text>{item.path}</Text>
+        </Card.Content>
+      )}
     </Card>
   );
 
@@ -49,7 +59,7 @@ export default function Index() {
       </Appbar.Header>
       <FlatList
         style={styles(theme).container}
-        data={savedItems}
+        data={displayItems}
         renderItem={({ item }) => renderItem(item)}
         keyExtractor={(item) => item.path}
         numColumns={2}
